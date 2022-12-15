@@ -1,11 +1,9 @@
 const mongoose = require('mongoose');
-const express = require('express');
-const router = express.Router();
 
 const urlSchema = new mongoose.Schema({
-    urlCode: { type:String , unique:true, trim:true },
-     longUrl: {type:String ,unique:true}, 
-     shortUrl: {type:String , unique:true} 
+    urlCode: { type:String , unique:true, required: true,lowercase:true,trim:true },
+     longUrl: {type:String ,required:true,trim:true}, 
+     shortUrl: {type:String , unique:true,required:true,trim:true} 
 });
 
 
