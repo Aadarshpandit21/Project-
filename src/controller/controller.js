@@ -37,6 +37,11 @@ let createUrl = async function(req,res){
     if(!data.longUrl){
       res.status(400).send({status:false,msg:'please provide long url'})
     }
+    for(let i=0;i<data.longUrl.length;i++){
+      if("ABCDEFGHIJKLMNOPQRSTUVWXYZ".includes(data.longUrl[i])){
+        res.status(400).send({status:false,msg:'url must be valid'});
+      }
+    }
     if (!isValidUrl.isUri(data.longUrl)){
         res.status(400).send({status:false,msg:'Url must be Valid Url'})
     }
@@ -66,20 +71,20 @@ const fetchUrl = async function (req, res) {
   try{
     let urlCode=req.params.urlCode;
     let catchedUrl=await GET_ASYNC(`${urlCode}`)
+    let data = JSON.parse(catchedUrl)
     if(!urlCode){
       return res.status(400).send({status:false, message:"url code must be present"});
     }
-    if(catchedUrl){
-      return res.status(302).redirect(catchedUrl);
+    if(data){
+      return res.status(302).redirect(data.longUrl);
     }
-    let getUrl=await urlModel.findOne({urlCode:urlCode})
-    if(getUrl){
-      return res.status(302).redirect(getUrl.longUrl)
-    }else{
-      await SET_ASYNC(`${catchedUrl}`,JSON.stringify(getUrl))
-      return res.status(400).send({status:false, msg:"shortUrl is not found"});
+    let getData=await urlModel.findOne({urlCode:urlCode})
+    if(getData){
+      await SET_ASYNC(`${urlCode}`,JSON.stringify(getData))
+      return res.status(302).redirect(getData.longUrl)
     }
-  
+    res.status(404).send({status:false,msg:'url does not exist'})
+
   }catch(err){
     return res.status(500).send({status:false, msg:err.message});
   }
@@ -103,3 +108,5 @@ const fetchUrl = async function (req, res) {
 module.exports.createUrl = createUrl;
 //module.exports.getUrl = getUrl;
 module.exports.fetchUrl = fetchUrl;
+
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ" 
